@@ -203,7 +203,6 @@ def main():
                 Cigar = read.cigarstring
                 if (rm_Indels):
                     if 'I' in Cigar or 'D' in Cigar: continue
-                if read.infer_read_length() < minLength: continue
                 # Filter out softclip, hardclip and for MapQuality cutoff
                 if 'S' not in Cigar and 'H' not in Cigar and read.mapping_quality >= MQ_cutoff:
                     pos = read.get_reference_positions(full_length=False)
@@ -222,7 +221,7 @@ def main():
                         myseq = read.query_sequence
                         bq = read.query_qualities
                         L = min(len(myseq), maxLength)
-                        if site_position in pos:
+                        if site_position in pos and L >= minLength:
                             p = site_position
                             # Sequences have different length, we need to align them
                             # update the variables accordingly
