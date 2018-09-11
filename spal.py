@@ -119,7 +119,8 @@ def alnseq(refseq, myseq, CIGAR, basequalities, start):
             a1 += refseq[i1:(cigar_len+i1)]
             i1 += cigar_len
         pos = positions[-1]
-    return({"refseq": a1, "myseq": a2, "pos": positions, "bq": bq})
+    # must return refseq, myseq, pos, bq
+    return (a1, a2, positions, bq)
 #############################################
 
 #############################################
@@ -223,22 +224,17 @@ def main():
                         L = min(len(myseq), maxLength)
                         if site_position in pos:
                             p = site_position
-                            # Sequences have identical length and is not needed to align them
-                            if len(myseq) == len(refseq):
-                                a = {"refseq": refseq, "myseq": myseq, "pos": pos, "bq": bq}
-                            else:
-                                # align the two sequences
-                                a = alnseq(refseq, myseq, CIGAR=read.cigartuples,
-                                           basequalities=bq, start=pos[0])
-
-                            if deam_filter_skip or is_deaminated(a['refseq'], a['myseq'],
-                                                                    terminal_deam, read.is_reverse, isDoubleStranded=DoubleStrand): 
-                                Allele = a['myseq'][a['pos'].index(p)]
-                                BQ = a['bq'][a['pos'].index(p)]
+                            # Sequences have different length, we need to align them
+                            # update the variables accordingly
+                            if len(myseq) != len(refseq):
+                                (refseq, myseq, pos, bq) = alnseq(refseq, myseq, CIGAR=read.cigartuples, basequalities=bq, start=pos[0])
+                            # increment counters
+                            if deam_filter_skip or is_deaminated(refseq, myseq, terminal_deam, read.is_reverse, isDoubleStranded=DoubleStrand): 
+                                Allele = myseq[pos.index(p)]
+                                BQ = bq[pos.index(p)]
                                 if Allele in ['A', 'C', 'G', 'T']:
                                     if BQ >= BQ_cutoff:
-                                        results = count(
-                                            Allele, Reference=reference, Modified=modified, isReverse=read.is_reverse)
+                                        results = count(Allele, Reference=reference, Modified=modified, isReverse=read.is_reverse)
                                         output_table[L][results['Type']] += 1
                                         if results['pass_SF']:
                                             output_table[L][results['Type']+'_SF'] += 1
