@@ -200,12 +200,11 @@ def main():
         for chrom in [str(k) for k in range(1, 23)] + ['X']:
             for read in samfile.fetch(chrom):
                 Cigar = read.cigarstring
-                passIndelsFilter=True
                 if (rm_Indels):
-                    passIndelsFilter= 'I' not in Cigar and 'D' not in Cigar
-                
+                    if 'I' in Cigar or 'D' in Cigar: continue
+                if read.infer_read_length() < minLength: continue
                 # Filter out softclip, hardclip and for MapQuality cutoff
-                if 'S' not in Cigar and 'H' not in Cigar and read.mapping_quality >= MQ_cutoff and passIndelsFilter:
+                if 'S' not in Cigar and 'H' not in Cigar and read.mapping_quality >= MQ_cutoff:
                     pos = read.get_reference_positions(full_length=False)
                     site_position = 0; passTvFilter = True
                     try:
@@ -222,7 +221,7 @@ def main():
                         myseq = read.query_sequence
                         bq = read.query_qualities
                         L = min(len(myseq), maxLength)
-                        if site_position in pos and L >= minLength:
+                        if site_position in pos:
                             p = site_position
                             # Sequences have identical length and is not needed to align them
                             if len(myseq) == len(refseq):
