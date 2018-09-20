@@ -158,18 +158,20 @@ def is_deaminated(refseq, myseq, terminal_positions=terminal_deam, isReverse=Fal
 #############################################
 # Function to determine the state of the read and whether it passed the Strand Filter.
 def count(Allele, Reference, Modified, isReverse=False):
-    output = {'Type': 'Oth', 'pass_SF': True}
+    ret_type = 'Oth'
+    pass_SF = True
     if Modified == Allele:
-        output['Type'] = 'Mod'
+        ret_type = 'Mod'
     elif Reference == Allele:
-        output['Type'] = 'Ref'
-    if Reference+Modified == 'CG' or Reference+Modified == 'GC':  # The SF removes CG or GC sites
-        output['pass_SF'] = False
+        ret_type = 'Ref'
+    #if Reference+Modified == 'CG' or Reference+Modified == 'GC':  # The SF removes CG or GC sites
+    #    output['pass_SF'] = False
+    # with the 2 if below, CG/GC are covered whether isReverse is true or false
     if 'C' in Reference+Modified and isReverse == False:
-        output['pass_SF'] = False
-    if 'G' in Reference+Modified and isReverse == True:
-        output['pass_SF'] = False
-    return(output)
+        pass_SF = False
+    elif 'G' in Reference+Modified and isReverse == True:
+        pass_SF = False
+    return (ret_type, pass_SF)
 #############################################
 
 def binom_interval(success, total, confint=0.95):
@@ -233,10 +235,10 @@ def main():
                                 BQ = bq[pos.index(p)]
                                 if Allele in ['A', 'C', 'G', 'T']:
                                     if BQ >= BQ_cutoff:
-                                        results = count(Allele, Reference=reference, Modified=modified, isReverse=read.is_reverse)
-                                        output_table[L][results['Type']] += 1
-                                        if results['pass_SF']:
-                                            output_table[L][results['Type']+'_SF'] += 1
+                                        ret_type, pass_SF = count(Allele, Reference=reference, Modified=modified, isReverse=read.is_reverse)
+                                        output_table[L][ret_type] += 1
+                                        if pass_SF:
+                                            output_table[L][ret_type+'_SF'] += 1
 
                                 
     print('bp\tRef\tMod\tOth\tRef_SF\tMod_S\tOth_SF\tSpuriousAln_(95%CI)\tSpuriousAln_SF(95%CI)')
