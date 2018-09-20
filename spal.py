@@ -9,10 +9,13 @@ Report the estimates of spurious alignments as well as the the count of spurious
 # Libraries required.
 import argparse
 import textwrap as _textwrap
+
+
 class LineWrapRawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
     def _split_lines(self, text, width):
         text = self._whitespace_matcher.sub(' ', text).strip()
         return _textwrap.wrap(text, 90)
+
 
 import time
 import math
@@ -70,8 +73,8 @@ rm_Indels = args.Indels
 DoubleStrand = args.DoubleStrand
 Transversions = args.Transversions
 terminal_deam = args.deam.split(',')
-# Arguments for the deamination filter and to check the consistency of the -d option.  
-deam_filter_skip = True 
+# Arguments for the deamination filter and to check the consistency of the -d option.
+deam_filter_skip = True
 if (terminal_deam[0] != '0' or terminal_deam[1] != '0'):
     deam_filter_skip = False
 try:
@@ -88,15 +91,16 @@ except ValueError:
 #############################################
 # Function to align the reference sequence (refseq) and the sequence of interest (myseq), and return the positions and basequelities.
 
+
 def alnseq(refseq, myseq, CIGAR, basequalities, start):
     """Function to align the referece sequence (refseq) and the sequence of interest (myseq), and return the positions and basequelities."""
-    # a1 = refseq; a2 = myseq. 
+    # a1 = refseq; a2 = myseq.
     a1 = a2 = ''
     # i1 and i2 will be the ith element modified for indels for a1 and a2 respectively.
     i1 = i2 = 0
     # The positions and the basequalities (bq) to be 'adjusted' in case of indels.
     positions = []
-    bq = []  
+    bq = []
     pos = int(start)-1
     for (cigar_op, cigar_len) in CIGAR:
         if cigar_op == 0:
@@ -127,10 +131,13 @@ def alnseq(refseq, myseq, CIGAR, basequalities, start):
 #############################################
 
 # Function to deternime whether a sequence is deaminated condition on the last 'i,j' terminal positions
+
+
 def is_deaminated(refseq, myseq, terminal_positions=terminal_deam, isReverse=False, isDoubleStranded=False):
     """Function to deternime whether a sequence is deaminated condition on the last 'i,j' terminal positions"""
     refseq = refseq.upper()
-    output = False; nt = 'CT'
+    output = False
+    nt = 'CT'
     if (isDoubleStranded == False):
         if (isReverse):
             nt = 'GA'
@@ -138,7 +145,7 @@ def is_deaminated(refseq, myseq, terminal_positions=terminal_deam, isReverse=Fal
             if (refseq[p]+myseq[p] in nt):
                 output = True
         if (output == False):
-            for p in range(1, int(terminal_positions[1])+1) :
+            for p in range(1, int(terminal_positions[1])+1):
                 if(refseq[-p]+myseq[-p] in nt):
                     output = True
     else:
@@ -146,10 +153,10 @@ def is_deaminated(refseq, myseq, terminal_positions=terminal_deam, isReverse=Fal
             if (refseq[p]+myseq[p] in 'CT'):
                 output = True
         if (output == False):
-            for p in range(1, int(terminal_positions[1])+1) :
+            for p in range(1, int(terminal_positions[1])+1):
                 if(refseq[-p]+myseq[-p] in 'GT'):
                     output = True
-                    
+
     return(output)
 
 
@@ -165,7 +172,7 @@ def count(Allele, Reference, Modified, isReverse=False):
         ret_type = 'Mod'
     elif Reference == Allele:
         ret_type = 'Ref'
-    #if Reference+Modified == 'CG' or Reference+Modified == 'GC':  # The SF removes CG or GC sites
+    # if Reference+Modified == 'CG' or Reference+Modified == 'GC':  # The SF removes CG or GC sites
     #    output['pass_SF'] = False
     # with the 2 if below, CG/GC are covered whether isReverse is true or false
     if 'C' in Reference+Modified and isReverse == False:
@@ -174,6 +181,7 @@ def count(Allele, Reference, Modified, isReverse=False):
         pass_SF = False
     return (ret_type, pass_SF)
 #############################################
+
 
 def binom_interval(success, total, confint=0.95):
     quantile = (1 - confint) / 2.
@@ -189,35 +197,39 @@ def binom_interval(success, total, confint=0.95):
 # End of the functions!!!!
 #############################################
 
+
 def main():
     # The results in a dictionary to be printed at the end of the script.
     output_table = OrderedDict({i: {'Ref': 0, 'Mod': 0, 'Oth': 0,
-                        'Ref_SF': 0, 'Mod_SF': 0, 'Oth_SF': 0} for i in range(minLength, maxLength+1)})
+                                    'Ref_SF': 0, 'Mod_SF': 0, 'Oth_SF': 0} for i in range(minLength, maxLength+1)})
 
-    # Max divergence allowed in bwa using the ancient paramenters and used to correct the estimates of spurious alignments.  
-    MaxDivBWA = {'20': 2, '21':2,
-                     '22':3, '23': 3,  '24': 3,  '25': 3,  '26': 3,  '27': 3,  '28': 3,  '29': 3,  '30': 3,  '31': 3,  '32': 3,  '33': 3,  '34': 3,  '35': 3,  '36': 3,  '37': 3,  '38': 3,  '39': 3,  '40': 3,  '41': 3 ,
-                     '42': 4, '43': 4, '44': 4, '45': 4, '46': 4, '47': 4, '48': 4, '49': 4, '50': 4, '51': 4, '52': 4, '53': 4, '54': 4, '55': 4, '56': 4, '57': 4, '58': 4, '59': 4, '60': 4}
+    # Max divergence allowed in bwa using the ancient paramenters and used to correct the estimates of spurious alignments.
+    MaxDivBWA = {'20': 2, '21': 2,
+                 '22': 3, '23': 3,  '24': 3,  '25': 3,  '26': 3,  '27': 3,  '28': 3,  '29': 3,  '30': 3,  '31': 3,  '32': 3,  '33': 3,  '34': 3,  '35': 3,  '36': 3,  '37': 3,  '38': 3,  '39': 3,  '40': 3,  '41': 3,
+                 '42': 4, '43': 4, '44': 4, '45': 4, '46': 4, '47': 4, '48': 4, '49': 4, '50': 4, '51': 4, '52': 4, '53': 4, '54': 4, '55': 4, '56': 4, '57': 4, '58': 4, '59': 4, '60': 4}
 
     start = time.time()
-    r = list(range(minLength,maxLength))
+    r = list(range(minLength, maxLength))
     with pysam.AlignmentFile(input_file, "rb", check_sq=False) as samfile, pysam.TabixFile(infosites) as tabixfile:
         for chrom in [str(k) for k in range(1, 23)] + ['X']:
             for read in samfile.fetch(chrom):
                 Cigar = read.cigarstring
                 if (rm_Indels):
-                    if 'I' in Cigar or 'D' in Cigar: continue
+                    if 'I' in Cigar or 'D' in Cigar:
+                        continue
                 # Filter out softclip, hardclip and for MapQuality cutoff
                 if 'S' not in Cigar and 'H' not in Cigar and read.mapping_quality >= MQ_cutoff:
                     pos = read.get_reference_positions(full_length=False)
-                    site_position = 0; passTvFilter = True
+                    site_position = 0
+                    passTvFilter = True
                     try:
                         for s in tabixfile.fetch(chrom, pos[0], pos[-1], parser=pysam.asBed()):
                             site_position = int(s[1])
                             reference = s[3]
                             modified = s[4]
                             if(Transversions == True):
-                                passTvFilter = not reference+modified in ['CT','TC', 'GA', 'AG']
+                                passTvFilter = not reference + \
+                                    modified in ['CT', 'TC', 'GA', 'AG']
                     except ValueError:
                         break
                     if site_position != 0 and passTvFilter:
@@ -230,19 +242,20 @@ def main():
                             # Sequences have different length, we need to align them
                             # update the variables accordingly
                             if len(myseq) != len(refseq):
-                                (refseq, myseq, pos, bq) = alnseq(refseq, myseq, CIGAR=read.cigartuples, basequalities=bq, start=pos[0])
+                                (refseq, myseq, pos, bq) = alnseq(
+                                    refseq, myseq, CIGAR=read.cigartuples, basequalities=bq, start=pos[0])
                             # increment counters
-                            if deam_filter_skip or is_deaminated(refseq, myseq, terminal_deam, read.is_reverse, isDoubleStranded=DoubleStrand): 
+                            if deam_filter_skip or is_deaminated(refseq, myseq, terminal_deam, read.is_reverse, isDoubleStranded=DoubleStrand):
                                 Allele = myseq[pos.index(p)]
                                 BQ = bq[pos.index(p)]
                                 if Allele in ['A', 'C', 'G', 'T']:
                                     if BQ >= BQ_cutoff:
-                                        ret_type, pass_SF = count(Allele, Reference=reference, Modified=modified, isReverse=read.is_reverse)
+                                        ret_type, pass_SF = count(
+                                            Allele, Reference=reference, Modified=modified, isReverse=read.is_reverse)
                                         output_table[L][ret_type] += 1
                                         if pass_SF:
-                                            output_table[L][ret_type+'_SF'] += 1
+                                            output_table[L][ret_type + '_SF'] += 1
 
-                                
     print('bp\tRef\tMod\tOth\tRef_SF\tMod_S\tOth_SF\tSpuriousAln_(95%CI)\tSpuriousAln_SF(95%CI)')
     SpAl = []
     TrAl = []
@@ -251,27 +264,28 @@ def main():
         d = MaxDivBWA[str(i)]/i
         for j in ['Ref', 'Mod', 'Oth', 'Ref_SF', 'Mod_SF', 'Oth_SF']:
             print('\t'+str(elem[j]), end='')
-        for j in ['','_SF']:
+        for j in ['', '_SF']:
             TrueAln = float(elem['Ref'+j])
             SpuriousAln = float(elem['Mod'+j]+elem['Oth'+j])
             TrueAln1 = max(TrueAln - SpuriousAln*d/(3-d), 0)
             SpuriousAln1 = SpuriousAln / (1-d/3)
             SpAl.append(SpuriousAln1)
             TrAl.append(TrueAln1)
-            spu = round(SpuriousAln1 / (SpuriousAln1 + TrueAln1),4)
+            spu = round(SpuriousAln1 / (SpuriousAln1 + TrueAln1), 4)
             ci = binom_interval(SpuriousAln1, SpuriousAln1+TrueAln1)
-            print('\t'+str(spu)+' ('+str(round(ci[0],4))+','+str(round(ci[1],4))+')', end='')
+            print(
+                '\t'+str(spu)+' ('+str(round(ci[0], 4))+','+str(round(ci[1], 4))+')', end='')
         print()
-        
-    ## Split the SpAl and TrAl and then print the cutoffs using the cumulative estimates.
+
+    # Split the SpAl and TrAl and then print the cutoffs using the cumulative estimates.
     spal = SpAl[0::2]
     spal_sf = SpAl[1::2]
     tral = TrAl[0::2]
     tral_sf = TrAl[1::2]
     j001 = j01 = j1 = j001sf = j01sf = j1sf = True
-    for i in range(0,len(spal)):
+    for i in range(0, len(spal)):
         cum_spal = sum(spal[i:])/(sum(spal[i:])+sum(tral[i:]))
-        cum_spal_sf = sum(spal_sf[i:])/(sum(spal_sf[i:])+sum(tral_sf[i:]))     
+        cum_spal_sf = sum(spal_sf[i:])/(sum(spal_sf[i:])+sum(tral_sf[i:]))
         if(cum_spal < 0.001 and j001):
             print('# 0.1% cutoff is', r[i], 'bp')
             j001 = False
@@ -290,18 +304,14 @@ def main():
         if(cum_spal_sf < 0.1 and j1sf):
             print('# 10% cutoff with SF is', r[i], 'bp')
             j1sf = False
-          
+
     end = time.time()
     print("#...done in", round((end - start)/60, 3), "minute(s)!")
-            
- 
+
+
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
         exit()
     exit()
-
-
-
-
