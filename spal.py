@@ -200,6 +200,7 @@ def main():
                      '42': 4, '43': 4, '44': 4, '45': 4, '46': 4, '47': 4, '48': 4, '49': 4, '50': 4, '51': 4, '52': 4, '53': 4, '54': 4, '55': 4, '56': 4, '57': 4, '58': 4, '59': 4, '60': 4}
 
     start = time.time()
+    r = list(range(minLength,maxLength))
     with pysam.AlignmentFile(input_file, "rb", check_sq=False) as samfile, pysam.TabixFile(infosites) as tabixfile:
         for chrom in [str(k) for k in range(1, 23)] + ['X']:
             for read in samfile.fetch(chrom):
@@ -272,22 +273,22 @@ def main():
         cum_spal = sum(spal[i:])/(sum(spal[i:])+sum(tral[i:]))
         cum_spal_sf = sum(spal_sf[i:])/(sum(spal_sf[i:])+sum(tral_sf[i:]))     
         if(cum_spal < 0.001 and j001):
-            print('# 0.1% cutoff is',list(range(minLength,maxLength))[i], 'bp')
+            print('# 0.1% cutoff is', r[i], 'bp')
             j001 = False
         if(cum_spal < 0.01 and j01):
-            print('# 1% cutoff is',list(range(minLength,maxLength))[i], 'bp')
+            print('# 1% cutoff is', r[i], 'bp')
             j01 = False
         if(cum_spal < 0.1 and j1):
-            print('# 10% cutoff is',list(range(minLength,maxLength))[i], 'bp')
+            print('# 10% cutoff is', r[i], 'bp')
             j1 = False
         if(cum_spal_sf < 0.001 and j001sf):
-            print('# 0.1% cutoff with SF is',list(range(minLength,maxLength))[i], 'bp')
+            print('# 0.1% cutoff with SF is', r[i], 'bp')
             j001sf = False
         if(cum_spal_sf < 0.01 and j01sf):
-            print('# 1% cutoff with SF is',list(range(minLength,maxLength))[i], 'bp')
+            print('# 1% cutoff with SF is', r[i], 'bp')
             j01sf = False
         if(cum_spal_sf < 0.1 and j1sf):
-            print('# 10% cutoff with SF is',list(range(minLength,maxLength))[i], 'bp')
+            print('# 10% cutoff with SF is', r[i], 'bp')
             j1sf = False
           
     end = time.time()
