@@ -16,6 +16,7 @@ class LineWrapRawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
 
 import time
 import math
+from collections import OrderedDict
 
 # Libraries to be installed before
 import pysam
@@ -190,8 +191,8 @@ def binom_interval(success, total, confint=0.95):
 
 def main():
     # The results in a dictionary to be printed at the end of the script.
-    output_table = {i: {'Ref': 0, 'Mod': 0, 'Oth': 0,
-                        'Ref_SF': 0, 'Mod_SF': 0, 'Oth_SF': 0} for i in range(minLength, maxLength+1)}
+    output_table = OrderedDict({i: {'Ref': 0, 'Mod': 0, 'Oth': 0,
+                        'Ref_SF': 0, 'Mod_SF': 0, 'Oth_SF': 0} for i in range(minLength, maxLength+1)})
 
     # Max divergence allowed in bwa using the ancient paramenters and used to correct the estimates of spurious alignments.  
     MaxDivBWA = {'20': 2, '21':2,
