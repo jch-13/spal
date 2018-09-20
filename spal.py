@@ -242,18 +242,17 @@ def main():
 
                                 
     print('bp\tRef\tMod\tOth\tRef_SF\tMod_S\tOth_SF\tSpuriousAln_(95%CI)\tSpuriousAln_SF(95%CI)')
-    SpAl = []; TrAl = []
-    for i in range(minLength, maxLength+1):
+    SpAl = []
+    TrAl = []
+    for i, elem in sorted(output_table.items()):
         print(i, end='')
         d = MaxDivBWA[str(i)]/i
         for j in ['Ref', 'Mod', 'Oth', 'Ref_SF', 'Mod_SF', 'Oth_SF']:
-            print('\t'+str(output_table[i][j]), end='')
+            print('\t'+str(elem[j]), end='')
         for j in ['','_SF']:
-            TrueAln = float(output_table[i]['Ref'+j])
-            SpuriousAln = float(output_table[i]['Mod'+j]+output_table[i]['Oth'+j])
-            TrueAln1 = TrueAln - SpuriousAln*d/(3-d)
-            if TrueAln1 < 0:
-                TrueAln1 = 0
+            TrueAln = float(elem['Ref'+j])
+            SpuriousAln = float(elem['Mod'+j]+elem['Oth'+j])
+            TrueAln1 = max(TrueAln - SpuriousAln*d/(3-d), 0)
             SpuriousAln1 = SpuriousAln / (1-d/3)
             SpAl.append(SpuriousAln1)
             TrAl.append(TrueAln1)
