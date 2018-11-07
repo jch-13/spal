@@ -2,41 +2,33 @@
 """Author:  Cesare de Filippo
 Contact: casare_filippo(at)eva.mpg.de
 
-Report the estimates of spurious alignments as well as the the count of spurious and true alignments as described in de Filippo et al. 201X.
+Report the estimates of spurious alignments as well as the the count of spurious and true alignments as described in:
+de Filippo et al. Quantifying and reducing spurious alignments for the analysis of ultra-short ancient DNA sequences. BMC Biology 2018 16:121
+https://doi.org/10.1186/s12915-018-0581-9
+https://bmcbiol.biomedcentral.com/articles/10.1186/s12915-018-0581-9
 """
 
 ##################################################
 # Libraries required.
 import argparse
 import textwrap as _textwrap
+import time
+import math
+from collections import OrderedDict
+# Libraries to be installed before
+import pysam
+from scipy.stats import beta
 
 
 class LineWrapRawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
     def _split_lines(self, text, width):
         text = self._whitespace_matcher.sub(' ', text).strip()
         return _textwrap.wrap(text, 90)
-
-
-import time
-import math
-from collections import OrderedDict
-
-# Libraries to be installed before
-import pysam
-from scipy.stats import beta
-
 ##################################################
 
-# Example of informative (mutated) sites in mutations_pos_trf.bed.gz
-# chr	pos1	pos2	Ref	Mut
-# 1		11034	11035	G	A
-# 1		11134	11135	G	T
-# 1		11534	11535	A	C
-# 1		11634	11635	C	A
-# 1		11734	11735	A	C
 
 parser = argparse.ArgumentParser(
-    description="This is a script to report the count of spurious and true alignments as described in de Filippo, Meyer and Pruefer (201X)\n'Harvesting information from ultra-short ancient DNA sequences.'\n",
+    description="This is a script to report the count of spurious and true alignments as described in de Filippo, Meyer and Pruefer (2018)\n'Quantifying and reducing spurious alignments for the analysis of ultra-short ancient DNA sequences.'\n",
     formatter_class=LineWrapRawTextHelpFormatter)
 
 parser.add_argument('-i', dest='input_file',
@@ -62,9 +54,10 @@ parser.add_argument('-T', dest='Transversions',
 
 args = parser.parse_args()
 
+
 # The arguments to be used later in the script.
-infosites = args.sites
 input_file = args.input_file
+infosites = args.sites
 BQ_cutoff = args.BaseQual
 MQ_cutoff = args.MapQual
 minLength = args.minLength
@@ -81,7 +74,7 @@ try:
     int(terminal_deam[0])
     int(terminal_deam[1])
 except ValueError:
-    print("-d {} incosistent.It must be two integers separeted by comma as follow:\n-d 1,1".format(args.deam))
+    print("-d {} incosistent. It must be two integers separeted by comma as follow:\n-d 1,1".format(args.deam))
     exit()
 
 ###########################
