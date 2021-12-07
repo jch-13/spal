@@ -53,6 +53,10 @@ parser.add_argument('-D', dest='DoubleStrand',
 parser.add_argument('-T', dest='Transversions',
                     help="Use only transversions from the informative sites (-s option).", default=False, required=False, action='store_true')
 
+## To be added, since so far it's only an argument.
+parser.add_argument('-c', dest='correct',
+                    help='Model or number of mismatches to correct for spurious misclassified alignments. Default is bwa_anc.',  type=str, default='bwa_anc')
+
 args = parser.parse_args()
 
 
@@ -205,7 +209,7 @@ def main():
     output_table = OrderedDict({i: {'Ref': 0, 'Mod': 0, 'Oth': 0,
                                     'Ref_SF': 0, 'Mod_SF': 0, 'Oth_SF': 0} for i in range(minLength, maxLength+1)})
 
-    # Max divergence allowed in bwa using the ancient paramenters and used to correct the estimates of spurious alignments.
+    # Max divergence allowed in bwa using the ancient paramenters '-n 0.01 -o 2 -l 16500'. This will be used used to correct the estimates of spurious alignments.
     MaxDivBWA = {'20': 2, '21': 2,
                  '22': 3, '23': 3,  '24': 3,  '25': 3,  '26': 3,  '27': 3,  '28': 3,  '29': 3,  '30': 3,  '31': 3,  '32': 3,  '33': 3,  '34': 3,  '35': 3,  '36': 3,  '37': 3,  '38': 3,  '39': 3,  '40': 3,  '41': 3,
                  '42': 4, '43': 4, '44': 4, '45': 4, '46': 4, '47': 4, '48': 4, '49': 4, '50': 4, '51': 4, '52': 4, '53': 4, '54': 4, '55': 4, '56': 4, '57': 4, '58': 4, '59': 4, '60': 4}
