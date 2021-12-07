@@ -249,7 +249,7 @@ def main():
                                         if pass_SF:
                                             output_table[L][ret_type + '_SF'] += 1
 
-    print('bp\tRef\tMod\tOth\tRef_SF\tMod_S\tOth_SF\tSpuriousAln_(95%CI)\tSpuriousAln_SF(95%CI)')
+    print('bp\tRef\tMod\tOth\tRef_SF\tMod_SF\tOth_SF\tSpuriousAln(95%CI)\tSpuriousAln_SF(95%CI)')
     SpAl = []
     TrAl = []
     for i, elem in sorted(output_table.items()):
