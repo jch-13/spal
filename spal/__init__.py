@@ -202,7 +202,7 @@ def main():
                  '42': 4, '43': 4, '44': 4, '45': 4, '46': 4, '47': 4, '48': 4, '49': 4, '50': 4, '51': 4, '52': 4, '53': 4, '54': 4, '55': 4, '56': 4, '57': 4, '58': 4, '59': 4, '60': 4}
 
     start = time.time()
-    r = list(range(minLength, maxLength))
+    r = list(range(minLength, maxLength+1))
     with pysam.AlignmentFile(input_file, "rb", check_sq=False) as samfile, pysam.TabixFile(infosites) as tabixfile:
         for chrom in [str(k) for k in range(1, 23)] + ['X']:
             for read in samfile.fetch(chrom):
