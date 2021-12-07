@@ -205,7 +205,7 @@ def main():
     r = list(range(minLength, maxLength+1))
     with pysam.AlignmentFile(input_file, "rb", check_sq=False) as samfile, pysam.TabixFile(infosites) as tabixfile:
         for chrom in [str(k) for k in range(1, 23)] + ['X']:
-            for read in samfile.fetch(chrom):
+            for read in samfile.fetch(chrom, until_eof=True): # until_eof=True prevent pysam to complain if there is no index file.
                 Cigar = read.cigarstring
                 if (rm_Indels):
                     if 'I' in Cigar or 'D' in Cigar:
