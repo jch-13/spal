@@ -273,12 +273,15 @@ def main():
         for j in ['', '_SF']:
             TrueAln = float(elem['Ref'+j])
             SpuriousAln = float(elem['Mod'+j]+elem['Oth'+j])
-            TrueAln1 = max(TrueAln - SpuriousAln*d/(3-d), 0)
-            SpuriousAln1 = SpuriousAln / (1-d/3)
-            SpAl.append(SpuriousAln1)
-            TrAl.append(TrueAln1)
-            spu = round(SpuriousAln1 / (SpuriousAln1 + TrueAln1), 4)
-            ci = binom_interval(SpuriousAln1, SpuriousAln1+TrueAln1)
+            if TrueAln+SpuriousAln > 0:
+                TrueAln1 = max(TrueAln - SpuriousAln*d/(3-d), 0)
+                SpuriousAln1 = SpuriousAln / (1-d/3)
+                SpAl.append(SpuriousAln1)
+                TrAl.append(TrueAln1)
+                spu = round(SpuriousAln1 / (SpuriousAln1 + TrueAln1), 4)
+                ci = binom_interval(SpuriousAln1, SpuriousAln1+TrueAln1)
+            else:
+                spu = 0; ci = [0,0]
             print(
                 '\t'+str(spu)+' ('+str(round(ci[0], 4))+','+str(round(ci[1], 4))+')', end='')
         print()
@@ -290,8 +293,14 @@ def main():
     tral_sf = TrAl[1::2]
     j001 = j01 = j1 = j001sf = j01sf = j1sf = True
     for i in range(0, len(spal)):
-        cum_spal = sum(spal[i:])/(sum(spal[i:])+sum(tral[i:]))
-        cum_spal_sf = sum(spal_sf[i:])/(sum(spal_sf[i:])+sum(tral_sf[i:]))
+        try:
+            cum_spal = sum(spal[i:])/(sum(spal[i:])+sum(tral[i:]))
+        except ZeroDivisionError:
+            cum_spal = float('NaN')
+        try:
+            cum_spal_sf = sum(spal_sf[i:])/(sum(spal_sf[i:])+sum(tral_sf[i:]))
+        except ZeroDivisionError:
+            cum_spal_sf =  float('NaN')
         if(cum_spal < 0.001 and j001):
             print('# 0.1% cutoff is', r[i], 'bp')
             j001 = False
