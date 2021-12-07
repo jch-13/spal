@@ -14,6 +14,7 @@ import argparse
 import textwrap as _textwrap
 import time
 import math
+import os
 from collections import OrderedDict
 # Libraries to be installed before
 import pysam
@@ -55,9 +56,17 @@ parser.add_argument('-T', dest='Transversions',
 args = parser.parse_args()
 
 
-# The arguments to be used later in the script.
 input_file = args.input_file
 infosites = args.sites
+if not os.path.isfile(input_file):
+    print("Input.bam file doesn't exist.\nUse -i option to specify it.")
+    exit()
+if not os.path.isfile(infosites):
+    print("The table with informative sites doesn't exist.\nUse -s option to specify it.")
+    exit()
+
+# The other arguments to be used later and easier in the script.
+
 BQ_cutoff = args.BaseQual
 MQ_cutoff = args.MapQual
 minLength = args.minLength
