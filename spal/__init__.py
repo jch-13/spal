@@ -224,7 +224,7 @@ def main():
                     if 'I' in Cigar or 'D' in Cigar:
                         continue
                 # Filter out softclip, hardclip and for MapQuality cutoff
-                if 'S' not in Cigar and 'H' not in Cigar and '*' not in Cigar and read.mapping_quality >= MQ_cutoff:
+                if 'S' not in Cigar and 'H' not in Cigar and Cigar != None and read.mapping_quality >= MQ_cutoff:
                     pos = read.get_reference_positions(full_length=False)
                     site_position = 0
                     passTvFilter = True
