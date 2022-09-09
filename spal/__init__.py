@@ -56,6 +56,8 @@ parser.add_argument('-T', dest='Transversions',
 ## To be added, since so far it's only an argument.
 parser.add_argument('-c', dest='correct',
                     help='Model or number of mismatches to correct for spurious misclassified alignments. Default is bwa_anc.',  type=str, default='bwa_anc')
+parser.add_argument('-n', dest='bwa_param_n',
+                    help='BWA\'s `n` parameter', type=float, default=0.01)
 
 args = parser.parse_args()
 
@@ -199,6 +201,23 @@ def binom_interval(success, total, confint=0.95):
         upper = 1
     return (lower, upper)
 
+def max_num_mismatches(read_length, poisson_threshold, base_error_rate):
+    lbd = read_length * base_error_rate
+    exp_minus_lbd = math.exp(-lbd)
+    
+    lbd_to_the_k = 1.0
+    k_factorial = 1
+    cur_sum = exp_minus_lbd
+    
+    for k in range(1, read_length + 1):
+        lbd_to_the_k *= lbd
+        k_factorial *= k
+        cur_sum += lbd_to_the_k * exp_minus_lbd / k_factorial
+        if 1.0 - cur_sum <= poisson_threshold:
+            return k
+    
+    return 2
+
 #############################################
 # End of the functions!!!!
 #############################################
@@ -210,9 +229,7 @@ def main():
                                     'Ref_SF': 0, 'Mod_SF': 0, 'Oth_SF': 0} for i in range(minLength, maxLength+1)})
 
     # Max divergence allowed in bwa using the ancient paramenters '-n 0.01 -o 2 -l 16500'. This will be used used to correct the estimates of spurious alignments.
-    MaxDivBWA = {'20': 2, '21': 2,
-                 '22': 3, '23': 3,  '24': 3,  '25': 3,  '26': 3,  '27': 3,  '28': 3,  '29': 3,  '30': 3,  '31': 3,  '32': 3,  '33': 3,  '34': 3,  '35': 3,  '36': 3,  '37': 3,  '38': 3,  '39': 3,  '40': 3,  '41': 3,
-                 '42': 4, '43': 4, '44': 4, '45': 4, '46': 4, '47': 4, '48': 4, '49': 4, '50': 4, '51': 4, '52': 4, '53': 4, '54': 4, '55': 4, '56': 4, '57': 4, '58': 4, '59': 4, '60': 4}
+    MaxDivBWA = {str(read_length): max_num_mismatches(read_length, bwa_param_n, 0.02) for read_length in range(20, 60 + 1)}
 
     start = time.time()
     r = list(range(minLength, maxLength+1))
